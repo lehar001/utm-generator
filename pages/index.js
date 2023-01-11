@@ -1,12 +1,15 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { Container, Box, Typography, TextField, Button } from '@mui/material';
+import { useRouter } from 'next/router'
 
 import { useState, useEffect } from 'react'
 
 var codec = require('json-url')('lzw');
 
 export default function Home() {
+
+  let router = useRouter()
 
   const [values, setValues] = useState({
     source: '',
@@ -45,7 +48,7 @@ export default function Home() {
 
   async function generateLink() {
     let result = await codec.compress(values)
-    setLink("localhost:3000/n?q=" + result)
+    setLink(window.location.origin + "/n?q=" + result)
   }
 
   // Each time the values object updates, generate a new string
