@@ -1,7 +1,8 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { Container, Box, Typography, TextField, Button } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Alert, AlertTitle } from '@mui/material';
 import { useRouter } from 'next/router'
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 import { useState, useEffect } from 'react'
 
@@ -18,6 +19,7 @@ export default function Home() {
   })
   const [string, setString] = useState('')
   const [link, setLink] = useState('')
+  const [copied, setCopied] = useState(false)
 
   function handleChange(e) {
     const value = e.target.value;
@@ -66,13 +68,31 @@ export default function Home() {
       </Head>
       <Container>
         <Typography variant="h1">Create UTM template</Typography>
-        <TextField name="source" label="Source" variant="outlined" value={values.source} onChange={handleChange} />
-        <TextField name="medium" label="Medium" variant="outlined" value={values.medium} onChange={handleChange} />
-        <TextField name="campaign" label="Campaign" variant="outlined" value={values.campaign} onChange={handleChange} />
+        <Box mb={2}>
+          <TextField name="source" label="Source" variant="outlined" value={values.source} onChange={handleChange} />
+          <TextField name="medium" label="Medium" variant="outlined" value={values.medium} onChange={handleChange} />
+          <TextField name="campaign" label="Campaign" variant="outlined" value={values.campaign} onChange={handleChange} />
+        </Box>
         <Typography>Preview: example.com{string}</Typography>
-        <Button onClick={generateLink}>Get template link</Button>
+        <Button onClick={generateLink} variant="contained">Get template link</Button>
+
         {link &&
-          <Typography>Here is your link: {link}</Typography>
+          <Box mt={2}>
+            <Typography>Here's your link! Share it with anyone that needs a link with your UTM template</Typography>
+            <Alert
+              severity="success"
+              action={
+                <CopyToClipboard
+                  text={link}
+                  onCopy={() => setCopied(true)}
+                >
+                  <Button size="small" color="inherit">Copy</Button>
+                </CopyToClipboard>
+              }
+            >
+              {link}
+            </Alert>
+          </Box>
         }
       </Container>
     </>
