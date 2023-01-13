@@ -78,7 +78,7 @@ export default function Home() {
 
         {link &&
           <Box mt={2}>
-            <Typography>Here's your link! Share it with anyone that needs a link with your UTM template</Typography>
+            <Typography>Here is your link! Share it with anyone that needs a link with your UTM template</Typography>
             <Alert
               severity="success"
               action={
