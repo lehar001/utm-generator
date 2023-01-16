@@ -2,10 +2,11 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Container, Box, Typography, TextField, Button } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Paper, Alert, AlertTitle, Grow } from '@mui/material';
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 var codec = require('json-url')('lzw');
 
@@ -20,6 +21,7 @@ export default function N() {
   const [link, setLink] = useState('')
   const [string, setString] = useState('')
   const [finalLink, setFinalLink] = useState('')
+  const [copied, setCopied] = useState(false)
 
   function handleChange(e) {
     const value = e.target.value;
@@ -79,9 +81,43 @@ export default function N() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container>
-        <Typography variant="h1">Generate UTM link from template</Typography>
-        <TextField name="link" label="Paste your link here" variant="outlined" value={link} onChange={handleChange} />
-        <Typography>{finalLink}</Typography>
+        <Typography variant="h3">Generate UTM link from template</Typography>
+        <Typography>Hey there! 👋</Typography>
+        <Typography>So someone needs you to UTM tag a link and sent you here, huh?</Typography>
+        <Typography>Don't worry, it's super simple! Just paste the link you want to use below and we'll give you a new link back with the UTM-parameters added, just like whoever sent you here wanted.</Typography>
+        <Paper
+          sx={{
+            p: 4
+          }}
+        >
+          <Typography>Step 1</Typography>
+          <Typography>Paste your destination link here</Typography>
+          <TextField fullWidth name="link" label="Paste your link here" variant="outlined" value={link} onChange={handleChange} />
+        </Paper>
+        <Grow in={finalLink}>
+          <Paper
+            sx={{
+              p: 4,
+              mt: 2
+            }}
+          >
+            <Typography>Step 2</Typography>
+            <Typography>Here is your tagged link! Use it just like you would a normal link.</Typography>
+            <Alert
+              severity="success"
+              action={
+                <CopyToClipboard
+                  text={finalLink}
+                  onCopy={() => setCopied(true)}
+                >
+                  <Button size="small" color="inherit">{copied ? "Copied!" : "Copy"}</Button>
+                </CopyToClipboard>
+              }
+            >
+              {finalLink}
+            </Alert>
+          </Paper>
+        </Grow>
         <Link href="/"><Button>Create your own template</Button></Link>
       </Container>
     </>

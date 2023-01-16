@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { Container, Box, Typography, TextField, Button, Alert, AlertTitle } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Alert, AlertTitle, FormGroup, FormControlLabel, Checkbox, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useRouter } from 'next/router'
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
@@ -20,6 +20,8 @@ export default function Home() {
   const [string, setString] = useState('')
   const [link, setLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const [replaceSpace, setReplaceSpace] = useState(false)
+  const [makeLowercase, setMakeLowercase] = useState(false)
 
   function handleChange(e) {
     const value = e.target.value;
@@ -30,19 +32,31 @@ export default function Home() {
     });
   }
 
+  function handleChangeSpace(e) {
+    setReplaceSpace(e.target.value)
+  }
+
   function generateString() {
     let newString = '';
     // Loop the value object
     for (const [key, value] of Object.entries(values)) {
       // If this key has a value, add it to the string
       if (value) {
+        // Replace blank space, if that's chosen
+        let formattedValue = value;
+        if (replaceSpace) {
+          formattedValue = formattedValue.replace(/ /g, replaceSpace)
+        }
+        if (makeLowercase) {
+          formattedValue = formattedValue.toLowerCase();
+        }
         // If we already have something in the string, seperate with &
         if (newString.length > 0) {
           newString = newString.concat("&")
         } else {
           newString = newString.concat("?")
         }
-        newString = newString.concat("utm_" + key + "=" + value)
+        newString = newString.concat("utm_" + key + "=" + formattedValue)
       }
     }
     setString(newString)
@@ -56,7 +70,7 @@ export default function Home() {
   // Each time the values object updates, generate a new string
   useEffect(() => {
     generateString()
-  }, [values])
+  }, [values, replaceSpace, makeLowercase])
 
   return (
     <>
@@ -69,10 +83,34 @@ export default function Home() {
       <Container>
         <Typography variant="h1">Create UTM template</Typography>
         <Box mb={2}>
-          <TextField name="source" label="Source" variant="outlined" value={values.source} onChange={handleChange} />
+          <Box>
+            <TextField fullWidth name="source" label="Source" variant="outlined" value={values.source} onChange={handleChange} />
+            <FormGroup>
+              <FormControlLabel control={<Checkbox />} label="Make editable" />
+            </FormGroup>
+          </Box>
           <TextField name="medium" label="Medium" variant="outlined" value={values.medium} onChange={handleChange} />
           <TextField name="campaign" label="Campaign" variant="outlined" value={values.campaign} onChange={handleChange} />
         </Box>
+        <Paper sx={{ p: 2 }}>
+          <Typography>Formatting options</Typography>
+          <FormGroup>
+            <FormControlLabel control={<Checkbox checked={makeLowercase} onChange={() => setMakeLowercase(!makeLowercase)} />} label="Make lowercase" />
+          </FormGroup>
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Replace blankspace with:</InputLabel>
+            <Select
+              value={replaceSpace}
+              label="Replace blankspace"
+              onChange={handleChangeSpace}
+            >
+              <MenuItem value={false}>Don't replace blankspace</MenuItem>
+              <MenuItem value={"-"}>Dash -</MenuItem>
+              <MenuItem value={"_"}>Underscore _</MenuItem>
+              <MenuItem value={"."}>Dot .</MenuItem>
+            </Select>
+          </FormControl>
+        </Paper>
         <Typography>Preview: example.com{string}</Typography>
         <Button onClick={generateLink} variant="contained">Get template link</Button>
 
@@ -86,7 +124,7 @@ export default function Home() {
                   text={link}
                   onCopy={() => setCopied(true)}
                 >
-                  <Button size="small" color="inherit">Copy</Button>
+                  <Button size="small" color="inherit">{copied ? "Copied!" : "Copy"}</Button>
                 </CopyToClipboard>
               }
             >
