@@ -1,8 +1,9 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import { Container, Box, Typography, TextField, Button, Alert, AlertTitle, FormGroup, FormControlLabel, Checkbox, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Alert, AlertTitle, FormGroup, FormControlLabel, Checkbox, Paper, FormControl, InputLabel, Select, MenuItem, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { useRouter } from 'next/router'
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useState, useEffect } from 'react'
 
@@ -92,25 +93,31 @@ export default function Home() {
           <TextField name="medium" label="Medium" variant="outlined" value={values.medium} onChange={handleChange} />
           <TextField name="campaign" label="Campaign" variant="outlined" value={values.campaign} onChange={handleChange} />
         </Box>
-        <Paper sx={{ p: 2 }}>
-          <Typography>Formatting options</Typography>
-          <FormGroup>
-            <FormControlLabel control={<Checkbox checked={makeLowercase} onChange={() => setMakeLowercase(!makeLowercase)} />} label="Make lowercase" />
-          </FormGroup>
-          <FormControl>
-            <InputLabel id="demo-simple-select-label">Replace blankspace with:</InputLabel>
-            <Select
-              value={replaceSpace}
-              label="Replace blankspace"
-              onChange={handleChangeSpace}
-            >
-              <MenuItem value={false}>Don't replace blankspace</MenuItem>
-              <MenuItem value={"-"}>Dash -</MenuItem>
-              <MenuItem value={"_"}>Underscore _</MenuItem>
-              <MenuItem value={"."}>Dot .</MenuItem>
-            </Select>
-          </FormControl>
-        </Paper>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+          >
+            <Typography>Formatting options</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox checked={makeLowercase} onChange={() => setMakeLowercase(!makeLowercase)} />} label="Make lowercase" />
+            </FormGroup>
+            <FormControl>
+              <InputLabel id="demo-simple-select-label">Replace blankspace with:</InputLabel>
+              <Select
+                value={replaceSpace}
+                label="Replace blankspace"
+                onChange={handleChangeSpace}
+              >
+                <MenuItem value={false}>Don't replace blankspace</MenuItem>
+                <MenuItem value={"-"}>Dash -</MenuItem>
+                <MenuItem value={"_"}>Underscore _</MenuItem>
+                <MenuItem value={"."}>Dot .</MenuItem>
+              </Select>
+            </FormControl>
+          </AccordionDetails>
+        </Accordion>
         <Typography>Preview: example.com{string}</Typography>
         <Button onClick={generateLink} variant="contained">Get template link</Button>
 
