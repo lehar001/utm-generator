@@ -13,43 +13,82 @@ var codec = require('json-url')('lzw');
 export default function N() {
   let router = useRouter()
 
-  const [values, setValues] = useState({
-    source: '',
-    medium: '',
-    campaign: ''
+  const [fields, setFields] = useState({
+    source: {
+      value: '',
+      editable: false,
+      options: []
+    },
+    medium: {
+      value: '',
+      editable: false,
+      options: []
+    },
+    campaign: {
+      value: '',
+      editable: false,
+      options: []
+    }
   })
   const [link, setLink] = useState('')
   const [string, setString] = useState('')
   const [finalLink, setFinalLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const [replaceSpace, setReplaceSpace] = useState(false)
+  const [makeLowercase, setMakeLowercase] = useState(false)
+  const [hasEditableField, setHasEditableField] = useState(false)
 
   function handleChange(e) {
     const value = e.target.value;
     setLink(value)
-    setFinalLink(value + string)
   }
 
   function generateString() {
     let newString = '';
     // Loop the value object
-    for (const [key, value] of Object.entries(values)) {
-      // If this key has a value, add it to the string
-      if (value) {
+    for (const [key, value] of Object.entries(fields)) {
+      // If any field is editable, set hasEditable
+      if (value.editable) {
+        setHasEditableField(true)
+      }
+      // If this field has a value, add it to the string
+      if (value.value) {
+        // Replace blank space, if that's chosen
+        let formattedValue = value.value;
+        if (replaceSpace) {
+          formattedValue = formattedValue.replace(/ /g, replaceSpace)
+        }
+        if (makeLowercase) {
+          formattedValue = formattedValue.toLowerCase();
+        }
         // If we already have something in the string, seperate with &
         if (newString.length > 0) {
           newString = newString.concat("&")
         } else {
           newString = newString.concat("?")
         }
-        newString = newString.concat("utm_" + key + "=" + value)
+        newString = newString.concat("utm_" + key + "=" + formattedValue)
       }
     }
     setString(newString)
   }
 
+  function handleEdit(e) {
+    let field = fields[e.target.name];
+    setFields({
+      ...fields,
+      [e.target.name]: {
+        ...field,
+        value: e.target.value
+      }
+    });
+  }
+
   async function readParameters(query) {
-    let q = await codec.decompress(query);
-    setValues(q)
+    let q = await codec.decompress(query)
+    setFields(q.fields)
+    setReplaceSpace(q.replaceSpace)
+    setMakeLowercase(q.makeLowercase)
   }
 
   // Check if there's a URL parameter called "query" present
@@ -70,7 +109,15 @@ export default function N() {
   // Each time the values object updates, generate a new string
   useEffect(() => {
     generateString()
-  }, [values])
+  }, [fields])
+
+  useEffect(() => {
+    setFinalLink(link + string)
+  }, [string, link])
+
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
   return (
     <>
@@ -90,10 +137,27 @@ export default function N() {
             p: 4
           }}
         >
-          <Typography>Step 1</Typography>
-          <Typography>Paste your destination link here</Typography>
+          <Typography>Step 1 - Paste your destination link here.</Typography>
           <TextField fullWidth name="link" label="Paste your link here" variant="outlined" value={link} onChange={handleChange} />
         </Paper>
+        {hasEditableField &&
+          <Paper
+            sx={{
+              p: 4,
+              mt: 2
+            }}
+          >
+            <Typography>Step 2 - Make any edits you want.</Typography>
+            {Object.keys(fields).map(key => {
+              if(fields[key].editable) {
+                return(
+                  <TextField fullWidth name={key} label={capitalizeFirstLetter(key)} onChange={handleEdit} variant="outlined" value={fields[key].value} />
+                )
+              }
+            }
+            )}
+          </Paper>
+        }
         <Grow in={finalLink}>
           <Paper
             sx={{
@@ -101,8 +165,7 @@ export default function N() {
               mt: 2
             }}
           >
-            <Typography>Step 2</Typography>
-            <Typography>Here is your tagged link! Use it just like you would a normal link.</Typography>
+            <Typography>Step {hasEditableField ? "3" : "2"} - Here is your tagged link! Use it just like you would a normal link.</Typography>
             <Alert
               severity="success"
               action={

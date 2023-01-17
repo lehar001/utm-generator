@@ -7,16 +7,30 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { useState, useEffect } from 'react'
 
+import Field from "../components/Field"
+
 var codec = require('json-url')('lzw');
 
 export default function Home() {
 
   let router = useRouter()
 
-  const [values, setValues] = useState({
-    source: '',
-    medium: '',
-    campaign: ''
+  const [fields, setFields] = useState({
+    source: {
+      value: '',
+      editable: false,
+      options: []
+    },
+    medium: {
+      value: '',
+      editable: false,
+      options: []
+    },
+    campaign: {
+      value: '',
+      editable: false,
+      options: []
+    }
   })
   const [string, setString] = useState('')
   const [link, setLink] = useState('')
@@ -25,11 +39,13 @@ export default function Home() {
   const [makeLowercase, setMakeLowercase] = useState(false)
 
   function handleChange(e) {
-    const value = e.target.value;
-
-    setValues({
-      ...values,
-      [e.target.name]: value
+    let field = fields[e.target.name];
+    setFields({
+      ...fields,
+      [e.target.name]: {
+        ...field,
+        value: e.target.value
+      }
     });
   }
 
@@ -37,14 +53,25 @@ export default function Home() {
     setReplaceSpace(e.target.value)
   }
 
+  function handleChangeEditable(e) {
+    let field = fields[e.target.name];
+    setFields({
+      ...fields,
+      [e.target.name]: {
+        ...field,
+        editable: !field.editable
+      }
+    });
+  }
+
   function generateString() {
     let newString = '';
     // Loop the value object
-    for (const [key, value] of Object.entries(values)) {
-      // If this key has a value, add it to the string
-      if (value) {
+    for (const [key, value] of Object.entries(fields)) {
+      // If this field has a value, add it to the string
+      if (value.value) {
         // Replace blank space, if that's chosen
-        let formattedValue = value;
+        let formattedValue = value.value;
         if (replaceSpace) {
           formattedValue = formattedValue.replace(/ /g, replaceSpace)
         }
@@ -64,14 +91,19 @@ export default function Home() {
   }
 
   async function generateLink() {
-    let result = await codec.compress(values)
+    let object = {
+      fields,
+      replaceSpace,
+      makeLowercase
+    }
+    let result = await codec.compress(object)
     setLink(window.location.origin + "/n?q=" + result)
   }
 
-  // Each time the values object updates, generate a new string
+  // Each time the fields object updates, generate a new string
   useEffect(() => {
     generateString()
-  }, [values, replaceSpace, makeLowercase])
+  }, [fields, replaceSpace, makeLowercase])
 
   return (
     <>
@@ -84,14 +116,27 @@ export default function Home() {
       <Container>
         <Typography variant="h1">Create UTM template</Typography>
         <Box mb={2}>
-          <Box>
-            <TextField fullWidth name="source" label="Source" variant="outlined" value={values.source} onChange={handleChange} />
-            <FormGroup>
-              <FormControlLabel control={<Checkbox />} label="Make editable" />
-            </FormGroup>
-          </Box>
-          <TextField name="medium" label="Medium" variant="outlined" value={values.medium} onChange={handleChange} />
-          <TextField name="campaign" label="Campaign" variant="outlined" value={values.campaign} onChange={handleChange} />
+          <Field
+            name="source"
+            label="Source"
+            field={fields.source}
+            handleChange={handleChange}
+            handleChangeEditable={handleChangeEditable}
+          />
+          <Field
+            name="medium"
+            label="Medium"
+            field={fields.medium}
+            handleChange={handleChange}
+            handleChangeEditable={handleChangeEditable}
+          />
+          <Field
+            name="campaign"
+            label="Campaign"
+            field={fields.campaign}
+            handleChange={handleChange}
+            handleChangeEditable={handleChangeEditable}
+          />
         </Box>
         <Accordion>
           <AccordionSummary
