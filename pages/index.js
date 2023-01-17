@@ -155,7 +155,7 @@ export default function Home() {
                 label="Replace blankspace"
                 onChange={handleChangeSpace}
               >
-                <MenuItem value={false}>Don't replace blankspace</MenuItem>
+                <MenuItem value={false}>Do not replace blankspace</MenuItem>
                 <MenuItem value={"-"}>Dash -</MenuItem>
                 <MenuItem value={"_"}>Underscore _</MenuItem>
                 <MenuItem value={"."}>Dot .</MenuItem>

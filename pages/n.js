@@ -131,7 +131,7 @@ export default function N() {
         <Typography variant="h3">Generate UTM link from template</Typography>
         <Typography>Hey there! 👋</Typography>
         <Typography>So someone needs you to UTM tag a link and sent you here, huh?</Typography>
-        <Typography>Don't worry, it's super simple! Just paste the link you want to use below and we'll give you a new link back with the UTM-parameters added, just like whoever sent you here wanted.</Typography>
+        <Typography>Do not worry, it is super simple! Just paste the link you want to use below and we will give you a new link back with the UTM-parameters added, just like whoever sent you here wanted.</Typography>
         <Paper
           sx={{
             p: 4
@@ -151,7 +151,7 @@ export default function N() {
             {Object.keys(fields).map(key => {
               if(fields[key].editable) {
                 return(
-                  <TextField fullWidth name={key} label={capitalizeFirstLetter(key)} onChange={handleEdit} variant="outlined" value={fields[key].value} />
+                  <TextField key={key} fullWidth name={key} label={capitalizeFirstLetter(key)} onChange={handleEdit} variant="outlined" value={fields[key].value} />
                 )
               }
             }
